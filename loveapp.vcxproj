@@ -132,6 +132,11 @@
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lovelib\lovelib.vcxproj">
+      <Project>{29fe9ae0-ddaf-42d5-97ad-da3f18c72d87}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

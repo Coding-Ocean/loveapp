@@ -7,6 +7,8 @@ void gmain()
 		if (escKeyPressed()) {
 			closeWindow();
 		}
-		Sleep(1);
+		clear(0.3f, 0.6f, 1.0f);
+		
+		present();
 	}
 }

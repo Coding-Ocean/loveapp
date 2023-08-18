@@ -10,8 +10,8 @@ void gmain()
 	int idxCube = createIdxCube();
 	int texCube = loadImage("tex1.png");
 
-	int vtxSphere = createVtxSphere(30,1);
-	int idxSphere = createIdxSphere(30);
+	int vtxSphere = createVtxSphere();
+	int idxSphere = createIdxSphere();
 	int texSphere = loadImage("earth.png");
 
 	MAT world;
@@ -33,8 +33,9 @@ void gmain()
 
 		//Sphere
 		world.identity();
+		world.mulScaling(2, 2, 2);
 		world.mulRotateY(-angle);
-		world.mulRotateX(-0.4f);
+		world.mulRotateX(-0.5f);
 		model(vtxSphere, idxSphere, texSphere, world);
 
 		present();

@@ -17,9 +17,6 @@ void gmain()
 	MAT world;
 	float angle = 0;
 
-	setLightDirection(-1, -0.5f, 1);
-	setAmbient(0.2f, 0.2f, 0.2f);
-	
 	while (!quit()) {
 		if (escKeyPressed()) closeWindow();
 		
@@ -32,14 +29,12 @@ void gmain()
 		world.mulRotateX(angle);
 		world.mulRotateY(angle);
 		world.mulRotateZ(angle);
-		world.mulTranslate(1, 0, 0);
-		//model(vtxCube, idxCube, texCube, world);
+		model(vtxCube, idxCube, texCube, world);
 
 		//Sphere
 		world.identity();
 		world.mulRotateY(-angle);
-		world.mulRotateZ(-0.4f);
-		world.mulTranslate(0, 0, 0);
+		world.mulRotateX(-0.4f);
 		model(vtxSphere, idxSphere, texSphere, world);
 
 		present();

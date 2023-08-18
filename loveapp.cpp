@@ -66,20 +66,16 @@ void gmain()
 	int idxCube = createIdxCube();
 	int texCube = loadImage("tex1.png");
 
+	MAT world;
 	float angle = 0;
-
-	setLightDirection(0, 0, 1);
-	setAmbient(0.2f, 0.2f, 0.2f);
 
 	while (!quit()) {
 		if (escKeyPressed()) closeWindow();
 		
 		clear(0.0f, 0.0f, 0.0f);
 		
-		angle += 0.008f;
-		
 		//3D
-		MAT world;
+		angle += 0.005f;
 		world.identity();
 		world.mulRotateX(angle);
 		world.mulRotateZ(angle);

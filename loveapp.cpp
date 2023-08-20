@@ -10,25 +10,25 @@ int createVtxCube()
 		 l,-l,-l, 0,0,-1, 1,1,
 		 l, l,-l, 0,0,-1, 1,0,
 		//ó†ñ 
-		 l, l, l, 0,0,1, 0,0,
-		 l,-l, l, 0,0,1, 0,1,
-		-l,-l, l, 0,0,1, 1,1,
-		-l, l, l, 0,0,1, 1,0,
+		 l, l, l, 0,0,1,  0,0,
+		 l,-l, l, 0,0,1,  0,1,
+		-l,-l, l, 0,0,1,  1,1,
+		-l, l, l, 0,0,1,  1,0,
 		//âEñ 
-		 l, l,-l, 1,0,0, 0,0,
-		 l,-l,-l, 1,0,0, 0,1,
-		 l,-l, l, 1,0,0, 1,1,
-		 l, l, l, 1,0,0, 1,0,
+		 l, l,-l, 1,0,0,  0,0,
+		 l,-l,-l, 1,0,0,  0,1,
+		 l,-l, l, 1,0,0,  1,1,
+		 l, l, l, 1,0,0,  1,0,
 		//ç∂ñ 
 		-l, l, l, -1,0,0, 0,0,
 		-l,-l, l, -1,0,0, 0,1,
 		-l,-l,-l, -1,0,0, 1,1,
 		-l, l,-l, -1,0,0, 1,0,
 		//è„ñ 
-		-l, l, l, 0,1,0, 0,0,
-		-l, l,-l, 0,1,0, 0,1,
-		 l, l,-l, 0,1,0, 1,1,
-		 l, l, l, 0,1,0, 1,0,
+		-l, l, l, 0,1,0,  0,0,
+		-l, l,-l, 0,1,0,  0,1,
+		 l, l,-l, 0,1,0,  1,1,
+		 l, l, l, 0,1,0,  1,0,
 		//â∫ñ 
 		-l,-l,-l, 0,-1,0, 0,0,
 		-l,-l, l, 0,-1,0, 0,1,
@@ -57,14 +57,23 @@ int createIdxCube()
 	return createIndexBuffer(indices, _countof(indices));
 }
 
+int createTexCube()
+{
+	unsigned char rgba[] = {
+		0x40, 0x80, 0xff, 0xff,
+	};
+	return createTexture(rgba, 1, 1, "smallTex");
+}
+
 void gmain()
 {
 	int width = 1920, height = 1080;
 	window("Love", width, height);
-
+	
+	//Create DirectX buffer objects
 	int vtxCube = createVtxCube();
 	int idxCube = createIdxCube();
-	int texCube = loadImage("tex1.png");
+	int texCube = createTexCube();
 
 	MAT world;
 	float angle = 0;
@@ -77,8 +86,8 @@ void gmain()
 		//3D
 		angle += 0.005f;
 		world.identity();
-		world.mulRotateX(angle);
 		world.mulRotateZ(angle);
+		world.mulRotateY(angle);
 		model(vtxCube, idxCube, texCube, world);
 
 		present();

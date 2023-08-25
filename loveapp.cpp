@@ -1,5 +1,5 @@
 //OŠpƒ|ƒŠƒSƒ“
-#if 0
+#if 1
 #include"../lovelib/lovelib.h"
 
 int createVtxTriangle(float l)
@@ -137,7 +137,7 @@ void gmain()
 		world.identity();
 		world.mulScaling(3.f, 3.f, 3.f);
 		//‘¾—z‚Ì©“]
-		world.mulRotateY(-angle*0.3f);
+		world.mulRotateY(-angle * 0.3f);
 		//‘¾—z‚Ì•`‰æ
 		ambient(1, 1, 1);
 		model(vtxSphere, idxSphere, texSun, world);
@@ -180,8 +180,8 @@ void gmain()
 	window("Love", width, height);
 	hideCursor();
 
-	int numCorners = 30;
-	int vtx = createVtxCylinder(0.5f/*radius*/, numCorners, -0.6f/*low*/, 0.6f/*high*/);
+	int numCorners = 50;
+	int vtx = createVtxCylinder(0.5f/*radius*/, numCorners, -0.9f/*low*/, 0.9f/*high*/);
 	int idx = createIdxCylinder(numCorners);
 	int tex = loadImage("earth.png");
 
@@ -194,7 +194,6 @@ void gmain()
 		clear(0.1f, 0.2f, 0.2f);
 
 		angle += -0.01f;
-
 		world.identity();
 		world.mulRotateY(angle);
 		world.mulRotateX(angle);
@@ -240,6 +239,54 @@ void gmain()
 		line3D(o, v2);
 		fill(1, 1, 0);
 		line3D(o, v3);
+
+		present();
+	}
+}
+#endif
+//‚QŸŒ³ü•ª
+#if 0
+#include"../lovelib/lovelib.h"
+#include<cmath>
+void gmain()
+{
+	int width = 1920, height = 1080;
+	window("Love", width, height);
+	hideCursor();
+	//‰~‚Ìƒf[ƒ^
+	struct DATA {
+		float x, y, radius;
+	};
+	DATA c1{ 960,540, 80 };
+	DATA c2{ 960,540,100 };
+	//ƒŠƒT‚¶‚ã[‹Èüã‚ğ“®‚©‚·‚Ìƒ‰ƒWƒAƒ“’l
+	float angle = 0;
+	//ƒƒCƒ“ƒ‹[ƒv
+	while (!quit()) {
+		if (escKeyPressed()) closeWindow();
+		clear(0.2f, 0.2f, 0.2f);
+
+		//ƒŠƒT‚¶‚ã[‹Èüã‚ğ“®‚©‚·
+		angle += 0.005f;
+		c1.x = 960 + sin(angle*2) * 400;
+		c1.y = 540 + cos(angle*3) * 400;
+		c2.x = 960 + cos(angle) * 400;
+		c2.y = 540 + sin(angle*2) * 400;
+		//Œğ‚í‚Á‚Ä‚¢‚½‚çF‚ğ•Ï‚¦‚é
+		float a = c1.x - c2.x;
+		float b = c1.y - c2.y;
+		float c = sqrt(a * a + b * b);
+		if (c < c1.radius + c2.radius)
+			fill(233/255.0f, 84/255.0f, 107/255.0f, 0.9f);
+		else
+			fill(0, 173/255.0f, 169/255.0f);
+		//‰~•`‰æ
+		circle(c1.x, c1.y, c1.radius*2);
+		circle(c2.x, c2.y, c2.radius*2);
+		//ü•ª•`‰æ
+		fill(255/255.0f, 243/255.0f, 63/255.0f);
+		float thickness = 2;
+		line(c1.x, c1.y, c2.x, c2.y, thickness);
 
 		present();
 	}

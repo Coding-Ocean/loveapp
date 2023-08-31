@@ -1,7 +1,21 @@
-#if 1
 #include"../lovelib/lovelib.h"
 #include<cmath>
+//外部変数------------------------------------------------------
+//床と犬で共用する
+MAT World;
+//床
+int VtxFloor,IdxFloor,TexFloor;
+//犬
+int VtxCube;
+int IdxFront, IdxBack, IdxRight, IdxLeft, IdxTop, IdxBottom;
+int TexFront, TexBack, TexRight, TexLeft, TexTop, TexBottom;
+float Px = 0, Py = 0, Pz = 0;
+float Vx = 0.05f, Vy = 0, Vz = 0.5f;
+float Ry = 0;
+constexpr float PI = 3.141592f;
 
+//関数----------------------------------------------------------
+//犬用インデックスをつくる
 int createIdxCubeFront()
 {
 	unsigned short indices[] = {
@@ -50,75 +64,128 @@ int createIdxCubeBottom()
 	};
 	return createIndexBuffer(indices, _countof(indices));
 }
-int createTex()
+//床用テクスチャをつくる
+int createVtxFloor()
 {
-	const int n = 10;
+	float l = 0.5f;
+	float y = 0.1f;
+	VERTEX vertices[] = {
+		//正面
+		-l, 0,-l, 0,0,-1, 0,0,
+		-l,-y,-l, 0,0,-1, 0,0.1,
+		 l,-y,-l, 0,0,-1, 1,0.1,
+		 l, 0,-l, 0,0,-1, 1,0,
+		 //裏面
+		  l, 0, l, 0,0,1, 0,0,
+		  l,-y, l, 0,0,1, 0,0.1,
+		 -l,-y, l, 0,0,1, 1,0.1,
+		 -l, 0, l, 0,0,1, 1,0,
+		 //右面
+		  l, 0,-l, 1,0,0, 0,0,
+		  l,-y,-l, 1,0,0, 0,0.1,
+		  l,-y, l, 1,0,0, 1,0.1,
+		  l, 0, l, 1,0,0, 1,0,
+		  //左面
+		  -l, 0, l, -1,0,0, 0,0,
+		  -l,-y, l, -1,0,0, 0,0.1,
+		  -l,-y,-l, -1,0,0, 1,0.1,
+		  -l, 0,-l, -1,0,0, 1,0,
+		  //上面
+		  -l, 0, l, 0,1,0, 0,0,
+		  -l, 0,-l, 0,1,0, 0,1,
+		   l, 0,-l, 0,1,0, 1,1,
+		   l, 0, l, 0,1,0, 1,0,
+		   //下面
+		   -l,-y,-l, 0,-1,0, 0,0,
+		   -l,-y, l, 0,-1,0, 0,1,
+			l,-y, l, 0,-1,0, 1,1,
+			l,-y,-l, 0,-1,0, 1,0,
+	};
+	return createVertexBuffer(vertices, _countof(vertices));
+
+}
+int createTexFloor()
+{
+	const int n = 9;
 	unsigned int abgr[n * n];
 	for (int y = 0; y < n; y++) {
 		for (int x = 0; x < n; x++) {
 			int i = x + y * n;
 			if ((x+y) % 2)
-				abgr[i] = 0xffffffff;
+				abgr[i] = 0xffddbbdd;
 			else
-				abgr[i] = 0xff808080;
+				abgr[i] = 0xffccaacc;
 		}
 	}
 	return createTexture((unsigned char*)abgr, n, n, "");
 }
+//上の関数群を呼び出して全てのグラフィックをつくる
+void createGraphics()
+{
+	VtxFloor = createVtxFloor();
+	IdxFloor = createIdxCube();
+	TexFloor = createTexFloor();
+
+	VtxCube = createVtxCube(0.5f);
+	IdxFront = createIdxCubeFront();
+	IdxBack = createIdxCubeBack();
+	IdxRight = createIdxCubeRight();
+	IdxLeft = createIdxCubeLeft();
+	IdxTop = createIdxCubeTop();
+	IdxBottom = createIdxCubeBottom();
+	TexFront = loadImage("animal_dog_front.png");
+	TexBack = loadImage("animal_dog_back.png");
+	TexRight = loadImage("animal_dog_right.png");
+	TexLeft = loadImage("animal_dog_left.png");
+	TexTop = loadImage("animal_dog_top.png");
+	TexBottom = loadImage("animal_dog_bottom.png");
+}
+//床を描画する
+void drawFloor()
+{
+	World.identity();
+	World.mulScaling(9, 1, 9);
+	model(VtxFloor, IdxFloor, TexFloor, World);
+}
+//犬を描画する
+void drawDog()
+{
+	World.identity();
+	World.mulTranslate(0, 0.5f, 0);
+	World.mulScaling(0.5f, 1, 1);
+	World.mulRotateY(Ry);
+	World.mulTranslate(Px, Py, Pz);
+	model(VtxCube, IdxFront, TexFront, World);
+	model(VtxCube, IdxBack, TexBack, World);
+	model(VtxCube, IdxRight, TexRight, World);
+	model(VtxCube, IdxLeft, TexLeft, World);
+	model(VtxCube, IdxTop, TexTop, World);
+	model(VtxCube, IdxBottom, TexBottom, World);
+}
+
+//ゲームメイン関数----------------------------------------------
 void gmain()
 {
 	int width = 1920, height = 1080;
 	window("Love", width, height);
 
-	int vtxCube = createVtxCube(0.5f);
-	int idxCube = createIdxCube();
-	int texCube = createTex();
-	int idxFront = createIdxCubeFront();
-	int idxBack = createIdxCubeBack();
-	int idxRight = createIdxCubeRight();
-	int idxLeft = createIdxCubeLeft();
-	int idxTop = createIdxCubeTop();
-	int idxBottom = createIdxCubeBottom();
-	int texFront = loadImage("animal_dog_front.png");
-	int texBack = loadImage("animal_dog_back.png");
-	int texRight = loadImage("animal_dog_right.png");
-	int texLeft = loadImage("animal_dog_left.png");
-	int texTop = loadImage("animal_dog_top.png");
-	int texBottom = loadImage("animal_dog_bottom.png");
-
-	MAT world;
-	float angle = 0;
+	createGraphics();
 	
-	lightDirection(0,0,1);
+	lightDirection(0,-1,0);
+	lightAmbient(0.7f, 0.7f, 0.7f);
 
-	setView(VEC(0, 3, -8.01), VEC(0, 0, 0), VEC(0, 1, 0));
-
+	VEC campos(0,1.5,-7);
+	VEC lookat(0, 0, 0);
+	VEC up(0,1,0);
+	setView(campos, lookat, up);
+	
 	while (!quit()) {
 		if (escKeyPressed()) closeWindow();
 
+
 		clear(0.2f, 0.4f, 0.8f);
-
-		angle += 0.01f;
-
-		world.identity();
-		world.mulScaling(7, 7, 7);
-		world.mulTranslate(0, -3.5f, 0);
-		lightAmbient(0.9f,0.9f,0.9f);
-		model(vtxCube, idxCube, texCube, world);
-
-		world.identity();
-		world.mulScaling(0.5f, 1, 1);
-		world.mulRotateY(angle);
-		world.mulTranslate(0, 0.5f, 0);
-		//lightAmbient(0.5f, 0.5f, 0.5f);
-		model(vtxCube, idxFront, texFront, world);
-		model(vtxCube, idxBack, texBack, world);
-		model(vtxCube, idxRight, texRight, world);
-		model(vtxCube, idxLeft, texLeft, world);
-		model(vtxCube, idxTop, texTop, world);
-		model(vtxCube, idxBottom, texBottom, world);
-		
+		drawFloor();
+		drawDog();
 		present();
 	}
 }
-#endif

@@ -12,7 +12,6 @@ int TexFront, TexBack, TexRight, TexLeft, TexTop, TexBottom;
 float Px = 0, Py = 0, Pz = 0;
 float Vx = 0.05f, Vy = 0, Vz = 0.5f;
 float Ry = 0;
-constexpr float PI = 3.141592f;
 
 //関数----------------------------------------------------------
 //犬用インデックスをつくる
@@ -64,7 +63,7 @@ int createIdxCubeBottom()
 	};
 	return createIndexBuffer(indices, _countof(indices));
 }
-//床用テクスチャをつくる
+//床用頂点をつくる
 int createVtxFloor()
 {
 	float l = 0.5f;
@@ -104,6 +103,7 @@ int createVtxFloor()
 	return createVertexBuffer(vertices, _countof(vertices));
 
 }
+//床用テクスチャをつくる
 int createTexFloor()
 {
 	const int n = 9;

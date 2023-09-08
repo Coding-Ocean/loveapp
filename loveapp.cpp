@@ -167,24 +167,53 @@ void drawDog()
 void gmain()
 {
 	window("Love", 1920, 1080);
-
+	//床と犬をつくる
 	createGraphics();
 	
 	lightDirection(0,-1,0);
 	lightAmbient(0.7f, 0.7f, 0.7f);
 
-	VEC campos(0,1.5,-7);
-	VEC lookat(0, 0, 0);
-	VEC up(0,1,0);
-	setView(campos, lookat, up);
-	
+	//カメラを球体上の座標に置くための変数
+	float longitude = 0;//経度
+	float latitude = 0.17f;//緯度
+	float radius = 9;//半径
+	//マウス感度
+	float sensitivity = 0.001f;
+	float sensitivityWheel = 0.5f;
+
 	while (!quit()) {
-		if (escKeyPressed()) closeWindow();
+		getInputState();
+		if (isTrigger(KEY_ESC)) closeWindow();
 
+		//キーで犬の位置を更新
+		if (isPress(KEY_A))Px += -Vx;
+		if (isPress(KEY_D))Px += Vx;
 
+		//マウスでView行列を更新
+		//経度
+		longitude += mouseVx * sensitivity;
+		//緯度
+		latitude += mouseVy * sensitivity;
+		//半径
+		radius += -mouseWheel * sensitivityWheel;
+		//View行列
+		float sx = sin(latitude), cx = cos(latitude);
+		float sy = sin(longitude), cy = cos(longitude);
+		VEC campos(sy * cx * radius, sx * radius, -cy * cx * radius);
+		VEC lookat(Px, 0.7f, 0);
+		VEC up(sx * -sy, cx, sx * cy);
+		setView(campos + lookat, lookat, up);
+		//マウスの位置をリセット
+		if (mouseX >= width - 1 || mouseX <= 0 ||
+			mouseY >= height - 1 || mouseY <= 0) {
+			setMousePos(width / 2, height / 2);
+		}
+
+		//描画
 		clear(0.2f, 0.4f, 0.8f);
 		drawFloor();
 		drawDog();
+		circle(mouseX, mouseY, 30);
 		present();
 	}
 }

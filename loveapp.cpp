@@ -166,8 +166,7 @@ void drawDog()
 //ƒQ[ƒ€ƒƒCƒ“ŠÖ”----------------------------------------------
 void gmain()
 {
-	int width = 1920, height = 1080;
-	window("Love", width, height);
+	window("Love", 1920, 1080);
 
 	createGraphics();
 	

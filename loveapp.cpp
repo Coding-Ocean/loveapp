@@ -1,219 +1,151 @@
-#include"../lovelib/lovelib.h"
 #include<cmath>
-//外部変数------------------------------------------------------
-//床と犬で共用する
-MAT World;
-//床
-int VtxFloor,IdxFloor,TexFloor;
-//犬
-int VtxCube;
-int IdxFront, IdxBack, IdxRight, IdxLeft, IdxTop, IdxBottom;
-int TexFront, TexBack, TexRight, TexLeft, TexTop, TexBottom;
-float Px = 0, Py = 0, Pz = 0;
-float Vx = 0.05f, Vy = 0, Vz = 0.5f;
-float Ry = 0;
+#include"../lovelib/lovelib.h"
 
-//関数----------------------------------------------------------
-//犬用インデックスをつくる
-int createIdxCubeFront()
-{
-	unsigned short indices[] = {
-		0,1,2,
-		0,2,3,
-	};
-	return createIndexBuffer(indices, _countof(indices));
-}
-int createIdxCubeBack()
-{
-	unsigned short indices[] = {
-		4,5,6,
-		4,6,7,
-	};
-	return createIndexBuffer(indices, _countof(indices));
-}
-int createIdxCubeLeft()
-{
-	unsigned short indices[] = {
-		12,13,14,
-		12,14,15,
-	};
-	return createIndexBuffer(indices, _countof(indices));
-}
-int createIdxCubeRight()
-{
-	unsigned short indices[] = {
-		8,9,10,
-		8,10,11,
-	};
-	return createIndexBuffer(indices, _countof(indices));
-}
-int createIdxCubeTop()
-{
-	unsigned short indices[] = {
-		16,17,18,
-		16,18,19,
-	};
-	return createIndexBuffer(indices, _countof(indices));
-}
-int createIdxCubeBottom()
-{
-	unsigned short indices[] = {
-		20,21,22,
-		20,22,23,
-	};
-	return createIndexBuffer(indices, _countof(indices));
-}
-//床用頂点をつくる
-int createVtxFloor()
-{
-	float l = 0.5f;
-	float y = 0.1f;
-	VERTEX vertices[] = {
-		//正面
-		-l, 0,-l, 0,0,-1, 0,0,
-		-l,-y,-l, 0,0,-1, 0,0.1,
-		 l,-y,-l, 0,0,-1, 1,0.1,
-		 l, 0,-l, 0,0,-1, 1,0,
-		 //裏面
-		  l, 0, l, 0,0,1, 0,0,
-		  l,-y, l, 0,0,1, 0,0.1,
-		 -l,-y, l, 0,0,1, 1,0.1,
-		 -l, 0, l, 0,0,1, 1,0,
-		 //右面
-		  l, 0,-l, 1,0,0, 0,0,
-		  l,-y,-l, 1,0,0, 0,0.1,
-		  l,-y, l, 1,0,0, 1,0.1,
-		  l, 0, l, 1,0,0, 1,0,
-		  //左面
-		  -l, 0, l, -1,0,0, 0,0,
-		  -l,-y, l, -1,0,0, 0,0.1,
-		  -l,-y,-l, -1,0,0, 1,0.1,
-		  -l, 0,-l, -1,0,0, 1,0,
-		  //上面
-		  -l, 0, l, 0,1,0, 0,0,
-		  -l, 0,-l, 0,1,0, 0,1,
-		   l, 0,-l, 0,1,0, 1,1,
-		   l, 0, l, 0,1,0, 1,0,
-		   //下面
-		   -l,-y,-l, 0,-1,0, 0,0,
-		   -l,-y, l, 0,-1,0, 0,1,
-			l,-y, l, 0,-1,0, 1,1,
-			l,-y,-l, 0,-1,0, 1,0,
-	};
-	return createVertexBuffer(vertices, _countof(vertices));
+//原点とする座標
+float Ox, Oy;
+//１とするドット数
+float Scl;
 
-}
-//床用テクスチャをつくる
-int createTexFloor()
+void mathAxis(float originX, float originY, float scale, float thickness)
 {
-	const int n = 9;
-	unsigned int abgr[n * n];
-	for (int y = 0; y < n; y++) {
-		for (int x = 0; x < n; x++) {
-			int i = x + y * n;
-			if ((x+y) % 2)
-				abgr[i] = 0xffddbbdd;
-			else
-				abgr[i] = 0xffccaacc;
-		}
+	Ox = originX;
+	Oy = originY;
+	Scl = scale;
+
+	//軸
+	//x
+	line(0, Oy, width, Oy, Scl * thickness);
+	//y
+	line(Ox, 0, Ox, height, Scl * thickness);
+
+	//目盛り
+	//x
+	float l = Scl * thickness * 2;
+	int num = 0;
+	num = (width-Ox) / Scl;
+	for (int x = 1; x <= num; x++) {
+		line(Ox + Scl * x, Oy - l, Ox + Scl * x, Oy + l, Scl * thickness);
 	}
-	return createTexture((unsigned char*)abgr, n, n, "");
+	num = Ox / Scl;
+	for (int x = 1; x <= num; x++) {
+		line(Ox + Scl * -x, Oy - l, Ox + Scl * -x, Oy + l, Scl * thickness);
+	}
+	//y
+	num = (height-Oy) / Scl;
+	for (int y = 1; y <= num; y++) {
+		line(Ox - l, Oy + Scl * y, Ox + l, Oy + Scl * y, Scl * thickness);
+	}
+	num = Oy / Scl;
+	for (int y = 1; y <= num; y++) {
+		line(Ox - l, Oy + Scl * -y, Ox + l, Oy + Scl * -y, Scl * thickness);
+	}
 }
-//上の関数群を呼び出して全てのグラフィックをつくる
-void createGraphics()
+void mathCircle(float x, float y, float diameter)
 {
-	VtxFloor = createVtxFloor();
-	IdxFloor = createIdxCube();
-	TexFloor = createTexFloor();
+	circle(Ox + Scl * x, Oy - Scl * y, Scl * diameter);
+}
+void mathLine(float sx, float sy, float ex, float ey, float thickness)
+{
+	line(Ox + Scl * sx, Oy - Scl * sy, Ox + Scl * ex, Oy - Scl * ey, Scl * thickness);
+}
+void mathGraph(float (*func)(float), float inc, float thickness, float diameter)
+{
+	float minX = -(Ox / Scl);
+	float maxX = (width - Ox) / Scl;
+	float sx, sy, ex, ey;
+	//正
+	for (sx = 0; sx < maxX; sx += inc) {
+		sy = func(sx);
+		ex = sx + inc;
+		ey = func(ex);
+		mathLine(sx, sy, ex, ey, thickness);
+		mathCircle(sx, sy, diameter);
+	}
+	//負
+	for (sx = 0; sx > minX; sx -= inc) {
+		sy = func(sx);
+		ex = sx - inc;
+		ey = func(ex);
+		mathLine(sx, sy, ex, ey, thickness);
+		mathCircle(sx, sy, diameter);
+	}
+}
+float func0(float x)
+{
+	return x*x;
+}
+float func1(float x)
+{
+	return x * x * x;
+}
+float func2(float x)
+{
+	return sin(x);
+}
+float func3(float x)
+{
+	return cos(x);
+}
 
-	VtxCube = createVtxCube(0.5f);
-	IdxFront = createIdxCubeFront();
-	IdxBack = createIdxCubeBack();
-	IdxRight = createIdxCubeRight();
-	IdxLeft = createIdxCubeLeft();
-	IdxTop = createIdxCubeTop();
-	IdxBottom = createIdxCubeBottom();
-	TexFront = loadImage("animal_dog_front.png");
-	TexBack = loadImage("animal_dog_back.png");
-	TexRight = loadImage("animal_dog_right.png");
-	TexLeft = loadImage("animal_dog_left.png");
-	TexTop = loadImage("animal_dog_top.png");
-	TexBottom = loadImage("animal_dog_bottom.png");
-}
-//床を描画する
-void drawFloor()
-{
-	World.identity();
-	World.mulScaling(9, 1, 9);
-	model(VtxFloor, IdxFloor, TexFloor, World);
-}
-//犬を描画する
-void drawDog()
-{
-	World.identity();
-	World.mulTranslate(0, 0.5f, 0);
-	World.mulScaling(0.5f, 1, 1);
-	World.mulRotateY(Ry);
-	World.mulTranslate(Px, Py, Pz);
-	model(VtxCube, IdxFront, TexFront, World);
-	model(VtxCube, IdxBack, TexBack, World);
-	model(VtxCube, IdxRight, TexRight, World);
-	model(VtxCube, IdxLeft, TexLeft, World);
-	model(VtxCube, IdxTop, TexTop, World);
-	model(VtxCube, IdxBottom, TexBottom, World);
-}
-
-//ゲームメイン関数----------------------------------------------
 void gmain()
 {
-	window("Love", 1920, 1080);
-	//床と犬をつくる
-	createGraphics();
-	
-	lightDirection(0,-1,0);
-	lightAmbient(0.7f, 0.7f, 0.7f);
+	window("Love", 800, 800);
 
-	//カメラを球体上の座標に置くための変数
-	float longitude = 0;//経度
-	float latitude = 0.17f;//緯度
-	float radius = 9;//半径
-	//マウス感度
-	float sensitivity = 0.001f;
-	float sensitivityWheel = 0.5f;
+	float ox = width / 2;
+	float oy = height / 2;
+	float scale = width / 8;
+	float thickness = 0.025f;
 
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
 
-		//キーで犬の位置を更新
-		if (isPress(KEY_A))Px += -Vx;
-		if (isPress(KEY_D))Px += Vx;
+		clear(0.0f, 0.2f, 0.2f);
 
-		//マウスでView行列を更新
-		//経度
-		longitude += mouseVx * sensitivity;
-		//緯度
-		latitude += mouseVy * sensitivity;
-		//半径
-		radius += -mouseWheel * sensitivityWheel;
-		//View行列
-		float sx = sin(latitude), cx = cos(latitude);
-		float sy = sin(longitude), cy = cos(longitude);
-		VEC campos(sy * cx * radius, sx * radius, -cy * cx * radius);
-		VEC lookat(Px, 0.7f, 0);
-		VEC up(sx * -sy, cx, sx * cy);
-		setView(campos + lookat, lookat, up);
-		//マウスの位置をリセット
-		if (mouseX >= width - 1 || mouseX <= 0 ||
-			mouseY >= height - 1 || mouseY <= 0) {
-			setMousePos(width / 2, height / 2);
+		//軸
+		if (isPress(MOUSE_LBUTTON)) {
+			ox += mouseVx;
+			oy += -mouseVy;
+		}
+		scale += mouseWheel * 5;
+		if (scale < 10)scale = 10;
+		fill(0.8f, 0.8f, 0.8f);
+		mathAxis(ox, oy, scale, thickness);
+		
+
+		float increments = 0.2f;
+		float thickness = 0.05f;
+		float plotsize = thickness;
+
+		fill(0.6f, 0.6f, 0.962f);
+		mathGraph(func0, increments, thickness, plotsize);
+		
+		fill(1, 0.952f, 0.247f);
+		mathGraph(func1, increments*0.5f, thickness, plotsize);
+
+		fill(0.913f, 0.329f, 0.419f);
+		mathGraph(func2, increments, thickness, plotsize);
+
+		fill(0, 0.678f, 0.662f);
+		mathGraph(func3, increments, thickness, plotsize);
+
+		//円
+		fill(0.913f, 0.529f, 0.119f);
+		float radius = 1.5f;
+		float sx = radius, sy = 0, ex = 0, ey = 0;
+		int num = 8;
+		float divAngle = 3.141592f * 2 / num;
+		static float angle = 0;
+		angle += 0.01f;
+		for (int i = 0; i < num; i++) {
+			ex = cos(angle + divAngle * i) * radius;
+			ey = sin(angle + divAngle * i) * radius;
+			//mathLine(sx, sy, ex, ey, thickness);
+			//mathCircle(ex, ey, diameter*13);
+			sx = ex;
+			sy = ey;
 		}
 
-		//描画
-		clear(0.2f, 0.4f, 0.8f);
-		drawFloor();
-		drawDog();
-		circle(mouseX, mouseY, 30);
 		present();
 	}
 }

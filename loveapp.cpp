@@ -70,6 +70,7 @@ void mathGraph(float (*func)(float), float inc, float thickness, float diameter)
 		mathCircle(sx, sy, diameter);
 	}
 }
+
 float func0(float x)
 {
 	return x*x;

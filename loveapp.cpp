@@ -2,133 +2,129 @@
 #include"../lovelib/lovelib.h"
 
 //原点とする座標
-float Ox, Oy;
-//１とするドット数
-float Scl;
+static float Ox, Oy;
+//ひと目盛りの大きさ
+static float Scl;
 
-void mathAxis(float originX, float originY, float scale, float thickness)
+void mathAxis(float ox, float oy, float scl, float thickness=0.01f)
 {
-	Ox = originX;
-	Oy = originY;
-	Scl = scale;
+	//set globals
+	Ox = ox;
+	Oy = oy;
+	Scl = scl;
 
-	//線の太さ
-	float sw = Scl * thickness;
+	//stroke weight
+	float sw = scl * thickness;
+	if (sw < 1.0f)sw = 1;
+	//axis X
+	line(0, oy, width, oy, sw);
+	//axis Y
+	line(ox, 0, ox, height, sw);
 
-	//軸
-	//x
-	line(0, Oy, width, Oy, sw);
-	//y
-	line(Ox, 0, Ox, height, sw);
-
-	//目盛り
-	//x
-	float l = Scl * thickness * 2.5f;
-	int num, i;
+	//目盛りを引くところ
 	float x, y;
-	num = int((width-Ox) / Scl);
+	//目盛りの半分の長さ
+	float l = sw * 5;
+	//目盛りを描く数、カウンタi
+	int num, i;
+	//ｘ軸上の正の目盛り
+	num = int((width - ox) / scl);
 	for (i = 1; i <= num; i++) {
-		x = Ox + Scl * i;
-		line(x, Oy - l, x, Oy + l, sw);
+		x = ox + scl * i;
+		line(x, oy - l, x, oy + l, sw);
 	}
-	num = int(Ox / Scl);
+	//ｘ軸上の負の目盛り
+	num = int(ox / scl);
 	for (i = 1; i <= num; i++) {
-		x = Ox + Scl * -i;
-		line(x, Oy - l, x, Oy + l, sw);
+		x = ox + scl * -i;
+		line(x, oy - l, x, oy + l, sw);
 	}
-	//y
-	num = int((height-Oy) / Scl);
+	//ｙ軸上の正の目盛り
+	num = int((height - oy) / scl);
 	for (i = 1; i <= num; i++) {
-		y = Oy + Scl * i;
-		line(Ox - l, y, Ox + l, y, sw);
+		y = oy + scl * i;
+		line(ox - l, y, ox + l, y, sw);
 	}
-	num = int(Oy / Scl);
+	//ｙ軸上の負の目盛り
+	num = int(oy / scl);
 	for (i = 1; i <= num; i++) {
-		y = Oy + Scl * -i;
-		line(Ox - l, y, Ox + l, y, sw);
+		y = oy + scl * -i;
+		line(ox - l, y, ox + l, y, sw);
 	}
 }
 void mathCircle(float x, float y, float diameter)
 {
-	circle(Ox + Scl * x, Oy - Scl * y, Scl * diameter, 10);
+	//スクリーン座標に変換
+	x = Ox + Scl * x;
+	y = Oy - Scl * y;
+	circle(x, y, Scl * diameter);
 }
 void mathLine(float sx, float sy, float ex, float ey, float thickness)
 {
-	line(Ox + Scl * sx, Oy - Scl * sy, Ox + Scl * ex, Oy - Scl * ey, Scl * thickness, 10);
+	//スクリーン座標に変換
+	sx = Ox + Scl * sx;
+	sy = Oy - Scl * sy;
+	ex = Ox + Scl * ex;
+	ey = Oy - Scl * ey;
+	line(sx, sy, ex, ey, Scl * thickness);
 }
-void mathGraph(float (*func)(float), float inc, float thickness, float diameter)
+void mathGraph(float (*f)(float), float inc=0.1f, float thickness=0.04f, float diameter=0.04f)
 {
-	//正
 	float maxX = (width - Ox) / Scl;
-	for (float x = 0; x < maxX; x += inc) {
-		mathLine(x, func(x), x + inc, func(x + inc), thickness);
-		mathCircle(x, func(x), diameter);
+	for (float x = 0; x <= maxX; x += inc) {
+		mathCircle(x, f(x), diameter);
+		mathLine(x, f(x), x + inc, f(x + inc), thickness);
 	}
-	//負
-	float minX = -(Ox / Scl);
-	for (float x = 0; x > minX; x -= inc) {
-		mathLine(x, func(x), x - inc, func(x - inc), thickness);
-		mathCircle(x, func(x), diameter);
+	float minX = -Ox / Scl;
+	for (float x = 0; x >= minX; x -= inc) {
+		mathCircle(x, f(x), diameter);
+		mathLine(x, f(x), x - inc, f(x - inc), thickness);
 	}
 }
-
-float func1(float x)
-{
-	return x;
-}
-float func2(float x)
+float quadratic(float x)
 {
 	return x * x;
 }
-float func3(float x)
+float cubic(float x)
 {
 	return x * x * x;
 }
-float func4(float x)
-{
-	return cos(x);
-}
-
 void gmain()
 {
-	window("Love", 800, 800);
-
+	window("Love",1920,1080);
+	//原点とする座標
 	float ox = width / 2;
 	float oy = height / 2;
-	float scale = width / 8;
+	//ひと目盛りの大きさ
+	float scl = 100;
 
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
-
-		clear(0.0f, 0.2f, 0.2f);
-
-		//軸
+		
+		//原点を移動
 		if (isPress(MOUSE_LBUTTON)) {
 			ox += mouseVx;
-			oy += -mouseVy;
+			oy -= mouseVy;
 		}
-		scale += mouseWheel * 10;
-		if (scale < 10)scale = 10;
+		//ひと目盛りの大きさを変更
+		scl += mouseWheel * 10;
+		if (scl < 5)scl = 5;
+
+		//描画
+		clear(0.0f, 0.2f, 0.2f);
+
 		fill(0.8f, 0.8f, 0.8f);
-		mathAxis(ox, oy, scale, 0.01f);
-		
-		//関数グラフ
-		float increments = 0.05f;
-		float thickness = 0.02f;
-		float plotsize = 0.02f;
+		mathAxis(ox, oy, scl);
 
-		fill(0.6f, 0.6f, 0.962f);
-		mathGraph(func1, increments, thickness, plotsize);
-		
-		fill(1.0f, 0.952f, 0.247f);
-		mathGraph(func2, increments*0.5f, thickness, plotsize);
-
-		fill(0.913f, 0.329f, 0.419f);
-		mathGraph(func3, increments, thickness, plotsize);
-
-		fill(0, 0.678f, 0.662f);
-		mathGraph(func4, increments, thickness, plotsize);
+		fill(0.9f, 0.9f, 0.2f);
+		mathGraph(quadratic);
+		fill(0.4f, 0.9f, 0.4f);
+		mathGraph(cubic);
+		fill(0.9f, 0.4f, 0.4f);
+		mathGraph(sin);
+		fill(0.4f, 0.4f, 0.9f);
+		mathGraph(cos);
 
 		present();
 	}

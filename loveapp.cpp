@@ -1,29 +1,42 @@
 #include"../lovelib/lovelib.h"
-int createFont(const char* c, int size);
+
+#include<cstdio>
+void fontSize(int size);
+void printInit();
+void print(const char* format, ...);
+void destroyFontMap();
+void fontFace(const char* fontname);
 
 void gmain()
 {
-	window("Love", 800, 800);
+	window("Love", 1920, 1080);
 
-	int size = 200;
-	int imgs[] = {
-		createFont("あ",size),
-		createFont(" ",size),
-		createFont("い",size),
-		createFont("う",size),
-	};
+
+	int cnt = 0;
 
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
 		
-		clear(0, 0, 0);
+		cnt++;
 
-		fill(1, 1, 1);
-		for (int i = 0; i < _countof(imgs); i++) {
-			image(imgs[i], size / 2+size*i, size / 2);
-		}
+		clear(0, 0.1f, 0.1f);
+		printInit();
+
+		fontSize(150);
+
+		fontFace("HGP明朝E");
+		fill(1,1,1);
+		print("エヴァンゲリオン");
+		print("時に、西暦2017年");
+		print("使徒襲来:%d", cnt);
+		
+		fontFace("あずきフォント");
+		print("習近平");
 
 		present();
 	}
+
+	destroyFontMap();
+
 }

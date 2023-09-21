@@ -1,29 +1,59 @@
+#if 1
 #include"../lovelib/lovelib.h"
-
 void gmain()
 {
 	window("Love", 1920, 1080);
 
-	const char* str = "cnt=";
-	int cnt = 0;
+	//fontFace("Comic Sans MS", ANSI_CHARSET);
+	//fontFace("jokerman", ANSI_CHARSET);
+	//fontFace("Showcard Gothic",ANSI_CHARSET);
+	//fontFace("Harlow Solid Italic", ANSI_CHARSET);
+
+	fontSize(150);
 
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
 
-		cnt++;
-
 		clear(0, 0.1f, 0.1f);
-
-		fill(1, 1, 1);
-		print("%s%d", str, cnt);
-		print("AKB:%.0f", mouseX);
-		print("HKT:%.0f", mouseY);
-
-
+		fill(0,0.5f,1);
+		print("Welcome to Coding Ocean!");
+		for (int i = 0; i < 3; i++) {
+			if (i == 0)
+				fill(1, 0, 0);
+			else if (i == 1)
+				fill(0, 1, 0);
+			else 
+				fill(1, 1, 0);
+			print("AKB%d", i + 46);
+		}
 		present();
 	}
 }
+#endif
+#if 0
+#include"../lovelib/lovelib.h"
+void gmain()
+{
+	window("Love", 1920, 1080);
+
+	USER_FONT userFont("KFhimajiFUDE.otf");
+	fontFace("‚j‚e‚Ð‚ÜŽš‚Ó‚Å");
+	fontSize(150);
+
+	while (!quit()) {
+		getInputState();
+		if (isTrigger(KEY_ESC)) closeWindow();
+
+		clear(0, 0.1f, 0.1f);
+		print("‚ ‚é‚Æ‚±‚ë‚É");
+		print("‚¨‚¶‚¢‚³‚ñ‚Æ");
+		print("‚¨‚Î‚ ‚³‚ñ‚ª");
+		print("‚µ‚ñ‚Å‚¢‚Ü‚µ‚½");
+		present();
+	}
+}
+#endif
 
 /*
 		int size = 100;
@@ -62,10 +92,8 @@ void gmain()
 		fontSize(100);
 		print("‚ä‚¤‚µ‚á‚Í‚¢‚«‚©‚¦‚Á‚½");
 
-		fontFace("Comic Sans MS", 0);
-		fontSize(100);
-		print("Welcome to Coding Ocean!");
-
-		fontFace("jokerman", 0);
-		print("Welcome to Coding Ocean!");
+	fontFace("Harlow Solid Italic",ANSI_CHARSET);
+	fontFace("Showcard Gothic",ANSI_CHARSET);
+	fontFace("Comic Sans MS", ANSI_CHARSET);
+	fontFace("jokerman", ANSI_CHARSET);
 */

@@ -15,31 +15,32 @@ void gmain()
 
 		clear(0, 0.1f, 0.1f);
 
-		//fontFace("Lucida Console", 0);
-
-		int size = 100;
-		fontSize(size);
-
-		fontFace("ÇlÇr ÉSÉVÉbÉN");
 		fill(1, 1, 1);
 		print("%s%d", str, cnt);
 		print("AKB:%.0f", mouseX);
 		print("HKT:%.0f", mouseY);
-		print("jjj");
 
-		fontFace("jokerman", 0);
-		fill(0, 1, 0);
-		float x=900, y=10;
-		text("#include<stdio.h>", x, y); y += size;
-		text("int main(){", x, y); y += size;
-		text("    printf(\"Hello\");", x, y); y += size;
-		text("}", x, y); y += size;
 
 		present();
 	}
 }
 
 /*
+		int size = 100;
+		fontSize(size);
+		fill(0, 1, 0);
+		float x=500, y=0;
+		fontFace("ÇlÇr ÉSÉVÉbÉN");
+		text("#include<stdio.h>", x, y); y += size;
+		text("int main(){", x, y); y += size;
+		text("    printf(\"Hello\");", x, y); y += size;
+		text("}", x, y); y += size*2;
+		fontFace("ÇlÇr ÇoÉSÉVÉbÉN");
+		text("#include<stdio.h>", x, y); y += size;
+		text("int main(){", x, y); y += size;
+		text("    printf(\"Hello\");", x, y); y += size;
+		text("}", x, y); y += size;
+
 		fontFace("HGPñæí©E");
 		fontSize(250);
 		fill(1,1,1);
@@ -51,14 +52,15 @@ void gmain()
 		fill(1, 1, 0.5f);
 		text("èKãﬂïΩ", mouseX, 800);
 
-	USER_FONT user1("PixelMplus12-Bold.ttf");
 	USER_FONT user2("KFhimajiFUDE.otf");
 		fontFace("ÇjÇeÇ–Ç‹éöÇ”Ç≈");
 		fontSize(80);
 		print("Ç†ÇØÇ‹ÇµÇƒÇ®ÇﬂÇ≈ÇΩÇ§:%d", cnt);
 
+	USER_FONT user1("PixelMplus12-Bold.ttf");
 		fontFace("PixelMplus12");
-		print("Ç‰Ç§ÇµÇ·ÇÕïméÄ");
+		fontSize(100);
+		print("Ç‰Ç§ÇµÇ·ÇÕÇ¢Ç´Ç©Ç¶Ç¡ÇΩ");
 
 		fontFace("Comic Sans MS", 0);
 		fontSize(100);

@@ -4,20 +4,36 @@ void gmain()
 {
 	window("Love", 1920, 1080);
 
+	const char* str = "cnt=";
 	int cnt = 0;
 
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
 
+		cnt++;
+
 		clear(0, 0.1f, 0.1f);
 
-		fontFace("HGP–¾’©E");
-		fontSize(100);
-		for (int i = 0; i < 10; i++) {
-			fill(1, 0.1f*i, 1);
-			text("Žg“kAP—ˆ",900,i*100);
-		}
+		//fontFace("Lucida Console", 0);
+
+		int size = 100;
+		fontSize(size);
+
+		fontFace("‚l‚r ƒSƒVƒbƒN");
+		fill(1, 1, 1);
+		print("%s%d", str, cnt);
+		print("AKB:%.0f", mouseX);
+		print("HKT:%.0f", mouseY);
+		print("jjj");
+
+		fontFace("jokerman", 0);
+		fill(0, 1, 0);
+		float x=900, y=10;
+		text("#include<stdio.h>", x, y); y += size;
+		text("int main(){", x, y); y += size;
+		text("    printf(\"Hello\");", x, y); y += size;
+		text("}", x, y); y += size;
 
 		present();
 	}

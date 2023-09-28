@@ -4,7 +4,6 @@
 void gmain()
 {
 	window("Love", 1920, 1080);
-
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
@@ -18,6 +17,7 @@ void gmain()
 		print("使徒、襲来");
 
 		fontFace("あずきフォント");
+		fontSize(250);
 		text("習近平", mouseX, 800);
 		present();
 	}
@@ -108,9 +108,12 @@ void gmain()
 		text("    printf(\"Hello\");", x, y); y += size;
 		text("}", x, y); y += size;
 
+		fontFace("Cooper Black", ANSI_CHARSET);
+		fontFace("Comic Sans MS", ANSI_CHARSET);
+		fontFace("Bauhaus 93", ANSI_CHARSET);
+		fontFace("Kristen ITC",ANSI_CHARSET);
 		fontFace("Harlow Solid Italic",ANSI_CHARSET);
 		fontFace("Showcard Gothic",ANSI_CHARSET);
-		fontFace("Comic Sans MS", ANSI_CHARSET);
 		fontFace("jokerman", ANSI_CHARSET);
 
 		fontFace("HGP明朝E");

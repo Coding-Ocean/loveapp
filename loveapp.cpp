@@ -1,38 +1,4 @@
-//text関数
-#if 0
-#include"../lovelib/lovelib.h"
-void gmain()
-{
-	window("Love", 1920, 1080);
-
-	while (!quit()) {
-		getInputState();
-		if (isTrigger(KEY_ESC)) closeWindow();
-
-		clear(0,0,0);
-
-		present();
-	}
-}
-#endif
-//print関数
-#if 0
-#include"../lovelib/lovelib.h"
-void gmain()
-{
-	window("Love", 1920, 1080);
-
-	while (!quit()) {
-		getInputState();
-		if (isTrigger(KEY_ESC)) closeWindow();
-
-		clear(0, 0, 0);
-
-		present();
-	}
-}
-#endif
-//フォントフェイスを変える
+//デモ
 #if 1
 #include"../lovelib/lovelib.h"
 void gmain()
@@ -52,8 +18,58 @@ void gmain()
 		print("使徒、襲来");
 
 		fontFace("あずきフォント");
-		fill(1, 1, 0.5f);
 		text("習近平", mouseX, 800);
+		present();
+	}
+}
+#endif
+//text関数の使い方
+#if 0
+#include"../lovelib/lovelib.h"
+void gmain()
+{
+	window("Love", 1920, 1080);
+
+	while (!quit()) {
+		getInputState();
+		if (isTrigger(KEY_ESC)) closeWindow();
+
+		clear(0,0,0);
+		
+		present();
+	}
+}
+#endif
+//print関数の使い方
+#if 0
+#include"../lovelib/lovelib.h"
+void gmain()
+{
+	window("Love", 1920, 1080);
+
+	while (!quit()) {
+		getInputState();
+		if (isTrigger(KEY_ESC)) closeWindow();
+
+		clear(0, 0, 0);
+
+		present();
+	}
+}
+#endif
+//フォントフェイスを変える
+#if 0
+#include"../lovelib/lovelib.h"
+void gmain()
+{
+	window("Love", 1920, 1080);
+
+	while (!quit()) {
+		getInputState();
+		if (isTrigger(KEY_ESC)) closeWindow();
+
+		clear(0, 0, 0);
+
 		present();
 	}
 }

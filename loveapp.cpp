@@ -4,24 +4,31 @@
 void gmain()
 {
 	window("Love", 1920, 1080);
-
+	int score = 1250;
+	int counter = 0;
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
 
 		clear(0, 0, 0);
+		
+		//text function(指定座標に表示される)
+		fontSize(200);
+		text("Stage1", 800, 100);
+
+		//print function(左上から表示され、自動的に改行する)
+		fontSize(50);
+		print("SCORE:%08d\n", score);
+		counter++;
+		if (counter >= 300) {
+			counter = 0;
+		}print("counter:%d", counter);
 
 		present();
 	}
 }
-/*
-	USER_FONT uf1("KFhimajiFUDE.otf");
-		fontFace("ＫＦひま字ふで");
-		fontSize(150);
-		print("エヴァンゲリオン");
-*/
 #endif
-//text関数の使い方
+//text関数で座標指定するのは面倒
 #if 0
 #include"../lovelib/lovelib.h"
 void gmain()

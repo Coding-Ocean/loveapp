@@ -18,7 +18,7 @@ void gmain()
 
 		//print function(左上から表示され、自動的に改行する)
 		fontSize(50);
-		print("SCORE:%08d\n", score);
+		print("SCORE:%08d", score);
 		counter++;
 		if (counter >= 300) {
 			counter = 0;

@@ -1,5 +1,5 @@
 //基本的な使い方
-#if 1
+#if 0
 #include"../lovelib/lovelib.h"
 void gmain()
 {
@@ -180,3 +180,92 @@ void gmain()
 }
 #endif
 
+//Distance Point Segment
+#if 1
+#include"../lovelib/lovelib.h"
+void gmain()
+{
+	window("Love", 1920, 1080);
+	hideCursor();
+
+	//原点
+	float ox = width / 2;
+	float oy = height / 2;
+	//１とする大きさ
+	float scl = 500;
+	bool flag = false;
+
+	while (!quit()) {
+		getInputState();
+		if (isTrigger(KEY_ESC)) closeWindow();
+
+		//原点を移動
+		if (isPress(MOUSE_LBUTTON)) {
+			ox += mouseVx;
+			oy -= mouseVy;
+		}
+		//１とする大きさを変更
+		scl += mouseWheel * 10;
+		if (scl < 10)scl = 10;
+
+		//描画
+		clear(0.0f, 0.0f, 0.0f);
+
+		fill(0.0f, 0.0f, 0.0f);
+		mathAxis(ox, oy, scl, 0.01f, 10);
+
+		VEC p{ mathMouseX,  mathMouseY };
+		VEC a{ -0.5f, -0.5f };
+		VEC b{ 0.5f,  0.5f };
+		VEC ab = b - a;
+		VEC ap = p - a;
+		float t = dot(ab, ap) / dot(ab, ab);
+		float save_t = t;
+		if (isTrigger(KEY_SPACE)) { flag = !flag; }
+		if (flag)t = clamp(t, 0, 1);
+		float d = length(ap - ab * t);
+
+		fill(0.7f, 0.7f, 0.7f);
+		float thickness = 0.01f;
+		mathArrow(a.x, a.y, b.x, b.y, thickness, 0.05f);
+		mathArrow(a.x, a.y, p.x, p.y, thickness, 0.05f);
+		fill(0.9f, 0.9f, 0.0f);
+		mathLine(p.x, p.y, a.x + ab.x * t, a.y + ab.y * t, thickness);
+
+		thickness = 0.001f;
+		VEC norm{ ab.y, -ab.x };
+		mathLine(a.x, a.y, a.x + norm.x, a.y + norm.y, thickness);
+		mathLine(a.x, a.y, a.x - norm.x * 2, a.y - norm.y * 2, thickness);
+		mathLine(b.x, b.y, b.x + norm.x * 2, b.y + norm.y * 2, thickness);
+		mathLine(b.x, b.y, b.x - norm.x, b.y - norm.y, thickness);
+		if (flag) {
+		}
+		else {
+			thickness = 0.005f;
+			fill(0.7f, 0.7f, 0.7f);
+			mathLine(a.x, a.y, a.x + ab.x * t, a.y + ab.y * t, thickness, 5);
+		}
+
+		fill(0.2, 0.2, 0.2);
+		rect(410, 85, 820, 170);
+		fill(0, 1, 1);
+		print("t = dot(ab,ap)/dot(ab,ab) :%0.2f", save_t);
+		if (flag)print("t = clamp(t,0,1)          :%0.2f", t);
+		fill(0.9, 0.9, 0.0);
+		print("d = length(ap - ab*t):%0.2f", d);
+
+		//文字
+		fill(1, 1, 1);
+		mathText("a", a.x, a.y);
+		if (flag && t >= 1); else mathText("b", b.x, b.y);
+		VEC nap = normalize(ap) * 0.05;
+		mathText("p", p.x + nap.x - 12.5f / scl, p.y + nap.y + 28 / scl);
+		mathText("→", (a.x + ab.x * t + 5 / scl), (a.y + ab.y * t + 25 / scl));
+		mathText("ab", (a.x + ab.x * t), (a.y + ab.y * t));
+		fill(0, 1, 1);
+		mathText("  *t", a.x + ab.x * t, a.y + ab.y * t);
+
+		present();
+	}
+}
+#endif

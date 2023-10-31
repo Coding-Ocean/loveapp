@@ -19,7 +19,7 @@ void gmain()
 		p[i + 1].x = p[i].x;
 		p[i].y = 0.5f;
 		p[i + 1].y = -0.5f;
-		n[i] = n[i+1]= { 0,0,-1 };
+		n[i] = n[i + 1] = { 0,0,-1 };
 		w[i][0] = 1 - divW * i;
 		w[i][1] = 1 - w[i][0];
 		w[i + 1][0] = w[i][0];
@@ -46,7 +46,6 @@ void gmain()
 	MAT m[2];
 	
 	float rad=0;
-	wireframe();
 
 	while (!quit()) {
 		getInputState();

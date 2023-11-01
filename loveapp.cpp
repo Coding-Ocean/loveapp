@@ -1,69 +1,120 @@
 #include"../lovelib/lovelib.h"
 
-
 void gmain()
 {
 	window("Love", 1920, 1080);
+	hideCursor();
 
-	const int num = 10;
-	VERTEX vertices[num]{};
-	
-	VEC p[num]{};
-	VEC n[num]{};
-	float w[num][2]{};
+	//左右(-1～+1)に伸びる直方体
+	const int numX = 7;//横方向頂点数
+	const int numY = 8;//縦方向頂点数
+	const int numVertices = numY * numX;//全頂点数
 
-	float divX = 1.0f / (num / 2 - 1);
-	float divW = 0.5f / (num / 2 - 1);
-	for (int i = 0; i < num; i+=2) {
-		p[i].x     = -1.0f + divX * i;
-		p[i + 1].x = p[i].x;
-		p[i].y = 0.5f;
-		p[i + 1].y = -0.5f;
-		n[i] = n[i + 1] = { 0,0,-1 };
-		w[i][0] = 1 - divW * i;
-		w[i][1] = 1 - w[i][0];
-		w[i + 1][0] = w[i][0];
-		w[i + 1][1] = w[i][1];
+	//左側の位置。ここにオフセットを足して全位置を設定していく
+	float l = 0.2f;
+	VEC leftP[numY] = {
+		VEC(-1,-l,-l),//前下
+		VEC(-1, l,-l),//前上
+		VEC(-1, l,-l),//上前
+		VEC(-1, l, l),//上後
+		VEC(-1, l, l),//後上
+		VEC(-1,-l, l),//後下
+		VEC(-1,-l, l),//下後
+		VEC(-1,-l,-l),//下前
+	};
+	//左側の法線。全部同じなのでコピーするだけ。
+	VEC leftN[numY] = {
+		VEC(0,0,-1),
+		VEC(0,0,-1),
+		VEC(0,1,0),
+		VEC(0,1,0),
+		VEC(0,0,1),
+		VEC(0,0,1),
+		VEC(0,-1,0),
+		VEC(0,-1,0),
+	};
+
+
+	//座標変換前の頂点要素（定数）
+	VEC p[numVertices]{};//position 位置
+	VEC n[numVertices]{};//normal 法線
+	float w[numVertices][2]{};//weight 行列の重み
+	//p,n,wを設定
+	float ofstX = 2.0f / (numX - 1);
+	float ofstW = 1.0f / (numX - 1);
+	for (int i = 0; i < numX; i++) {
+		for (int j = 0; j < numY; j++) {
+			p[i*8+j].x = leftP[j].x + ofstX * i;
+			p[i*8+j].y = leftP[j].y;
+			p[i*8+j].z = leftP[j].z;
+			n[i*8+j]   = leftN[j];
+			w[i*8+j][0] = 1.0f - ofstW * i;
+			w[i*8+j][1] = ofstW * i;
+		}
 	}
 
-	int numTriangles = num-2;
-	int numIndices = numTriangles * 3;
-	unsigned* indices = new unsigned[numIndices] {};
+	//インデックスをつくる
+	const int numTriangles = numY*(numX-1);//1列は８つの三角形
+	const int numIndices = numTriangles * 3;
+	unsigned indices[numIndices]{};
 	int j = 0;
 	for (int i = 0; i < numTriangles/2; i++) {
 		int k = i * 2;
+		//三角形１
 		indices[j++] = k + 0; 
-		indices[j++] = k + 1; 
-		indices[j++] = k + 2;
-		indices[j++] = k + 2; 
-		indices[j++] = k + 1; 
-		indices[j++] = k + 3;
+		indices[j++] = k + 9; 
+		indices[j++] = k + 1;
+		//三角形２
+		indices[j++] = k + 0; 
+		indices[j++] = k + 8; 
+		indices[j++] = k + 9;
+	}
+	
+	//ワールド座標変換行列
+	MAT mat[2];
+	//座標変換後の位置と法線
+	VEC p_[numVertices];
+	VEC n_[numVertices];
+
+	//描画用頂点pos,normal,uvを持つ。座標変換後ここにセットする。
+	VERTEX vertices[numVertices]{};
+	//uvは座標変換に影響を受けないのでここで入れておく
+	float ofstU = 1.0f / (numX - 1);
+	for (int i = 0; i < numX; i++) {
+		for (int j = 0; j < numY; j++) {
+			vertices[i * 8 + j].u = ofstU * i;
+			vertices[i * 8 + j].v = float(j % 2);
+		}
 	}
 
-	VEC p_[num];
-	VEC n_[num];
+	//テクスチャ読み込み
+	int tex = loadImage("silver.png");
 
-	MAT m[2];
-	
 	float rad=0;
 
+	//wireframe();
+	
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
 		
+		//ひねる角ラジアン
+		float rx0 = sinf(rad) * 1.5f;
+		float rx1 = cosf(rad) * 1.5f;
 		rad += 0.01f;
-		float rx0 = sin(rad) * 1.2f;
-		float rx1 = cos(rad) * 1.2f;
-		m[0].identity();
-		m[0].mulRotateX(rx0);
-		m[1].identity();
-		m[1].mulRotateX(rx1);
+		//行列をつくる
+		mat[0].identity();
+		mat[0].mulRotateX(rx0);
+		mat[1].identity();
+		mat[1].mulRotateX(rx1);
 
-		for (int i = 0; i < num; i++) {
-			p_[i]  = w[i][0] * m[0].mul(p[i]);
-			n_[i]  = w[i][0] * m[0].mul(n[i]);
-			p_[i] += w[i][1] * m[1].mul(p[i]);
-			n_[i] += w[i][1] * m[1].mul(n[i]);
+		for (int i = 0; i < numVertices; i++) {
+			//１頂点ずつ座標変換
+			p_[i]  = w[i][0] * mat[0].mul(p[i]);
+			n_[i]  = w[i][0] * mat[0].mul(n[i]);
+			p_[i] += w[i][1] * mat[1].mul(p[i]);
+			n_[i] += w[i][1] * mat[1].mul(n[i]);
+			//変換後、描画用頂点にコピー
 			vertices[i].x  = p_[i].x; 
 			vertices[i].y  = p_[i].y; 
 			vertices[i].z  = p_[i].z;
@@ -72,10 +123,9 @@ void gmain()
 			vertices[i].nz = n_[i].z;
 		}
 
-		clear(0.2, 0.4, 0.8);
-		model(vertices, indices, numTriangles);
+		clear(0.1f, 0.1f, 0.1f);
+		model(vertices, indices, numTriangles, tex);
 		present();
 
 	}
-	delete[]indices;
 }

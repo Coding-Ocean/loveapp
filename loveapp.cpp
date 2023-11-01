@@ -6,7 +6,7 @@ void gmain()
 	hideCursor();
 
 	//左右(-1～+1)に伸びる直方体
-	const int numX = 7;//横方向頂点数
+	const int numX = 21;//横方向頂点数
 	const int numY = 8;//縦方向頂点数
 	const int numVertices = numY * numX;//全頂点数
 
@@ -34,7 +34,6 @@ void gmain()
 		VEC(0,-1,0),
 	};
 
-
 	//座標変換前の頂点要素（定数）
 	VEC p[numVertices]{};//position 位置
 	VEC n[numVertices]{};//normal 法線
@@ -44,17 +43,20 @@ void gmain()
 	float ofstW = 1.0f / (numX - 1);
 	for (int i = 0; i < numX; i++) {
 		for (int j = 0; j < numY; j++) {
+			//position
 			p[i*8+j].x = leftP[j].x + ofstX * i;
 			p[i*8+j].y = leftP[j].y;
 			p[i*8+j].z = leftP[j].z;
+			//normal
 			n[i*8+j]   = leftN[j];
+			//wieght
 			w[i*8+j][0] = 1.0f - ofstW * i;
 			w[i*8+j][1] = ofstW * i;
 		}
 	}
 
 	//インデックスをつくる
-	const int numTriangles = numY*(numX-1);//1列は８つの三角形
+	const int numTriangles = numY * (numX - 1);//1列は８つの三角形
 	const int numIndices = numTriangles * 3;
 	unsigned indices[numIndices]{};
 	int j = 0;
@@ -72,6 +74,7 @@ void gmain()
 	
 	//ワールド座標変換行列
 	MAT mat[2];
+
 	//座標変換後の位置と法線
 	VEC p_[numVertices];
 	VEC n_[numVertices];
@@ -88,8 +91,9 @@ void gmain()
 	}
 
 	//テクスチャ読み込み
-	int tex = loadImage("silver.png");
+	int tex = 0;// loadImage("silver.png");
 
+	//三角関数用ラジアン
 	float rad=0;
 
 	//wireframe();
@@ -99,15 +103,17 @@ void gmain()
 		if (isTrigger(KEY_ESC)) closeWindow();
 		
 		//ひねる角ラジアン
-		float rx0 = sinf(rad) * 1.5f;
-		float rx1 = cosf(rad) * 1.5f;
+		float r0 = sinf(rad) * 1.5f;
+		float r1 = cosf(rad) * 1.5f;
 		rad += 0.01f;
+
 		//行列をつくる
 		mat[0].identity();
-		mat[0].mulRotateX(rx0);
+		mat[0].mulRotateZ(r0);
 		mat[1].identity();
-		mat[1].mulRotateX(rx1);
+		mat[1].mulRotateX(r1);
 
+		//座標変換
 		for (int i = 0; i < numVertices; i++) {
 			//１頂点ずつ座標変換
 			p_[i]  = w[i][0] * mat[0].mul(p[i]);
@@ -123,9 +129,9 @@ void gmain()
 			vertices[i].nz = n_[i].z;
 		}
 
+		//描画
 		clear(0.1f, 0.1f, 0.1f);
 		model(vertices, indices, numTriangles, tex);
 		present();
-
 	}
 }

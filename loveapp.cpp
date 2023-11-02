@@ -108,8 +108,13 @@ void gmain()
 	//ワイヤーフレーム表示フラッグ
 	bool wireFlag = false;
 
+	//ライティング
 	specularOn();
-	
+	lightDirection(0,-0.5,0.5f);
+
+	//カメラ
+	setView(VEC(0,0,-4), VEC(0,0,0), VEC(0,1,0));
+
 	//メインループ。座標変換と描画を繰り返す
 	while (!quit()) {
 		getInputState();
@@ -144,7 +149,7 @@ void gmain()
 		}
 
 		//描画
-		clear(0.1f, 0.1f, 0.1f);
+		clear(0.0f, 0.1f, 0.1f);
 		model_(vertices, indices, numTriangles, textureId);
 		present();
 	}

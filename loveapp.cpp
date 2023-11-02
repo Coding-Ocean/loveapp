@@ -5,12 +5,12 @@ void gmain()
 	window("Love", 1920, 1080);
 	hideCursor();
 
-	//左右(-1～+1)に伸びる直方体
-	const int numX = 21;//横方向頂点数
+	//頂点数：左右(-1.0～+1.0)に伸びる直方体
+	const int numX = 31;//横方向頂点数
 	const int numY = 8;//縦方向頂点数
 	const int numVertices = numY * numX;//全頂点数
 
-	//左側の位置。ここにオフセットを足して全位置を設定していく
+	//左側頂点の位置。このX座標ににオフセットを足して全位置を設定していく
 	float l = 0.2f;
 	VEC leftP[numY] = {
 		VEC(-1,-l,-l),//前下
@@ -22,36 +22,38 @@ void gmain()
 		VEC(-1,-l, l),//下後
 		VEC(-1,-l,-l),//下前
 	};
-	//左側の法線。全部同じなのでコピーするだけ。
+	//左側頂点の法線。全部同じなのでコピーするだけ。
 	VEC leftN[numY] = {
+		VEC(0,0,-1),//前
 		VEC(0,0,-1),
-		VEC(0,0,-1),
+		VEC(0,1,0),//上
 		VEC(0,1,0),
-		VEC(0,1,0),
+		VEC(0,0,1),//後
 		VEC(0,0,1),
-		VEC(0,0,1),
-		VEC(0,-1,0),
+		VEC(0,-1,0),//下
 		VEC(0,-1,0),
 	};
 
 	//座標変換前の頂点要素（定数）
-	VEC p[numVertices]{};//position 位置
-	VEC n[numVertices]{};//normal 法線
-	float w[numVertices][2]{};//weight 行列の重み
+	VEC   p[numVertices]{};//position 位置
+	VEC   n[numVertices]{};//normal 法線
+	float w0[numVertices]{};//weight0 重み0（行列が影響する割合0）
+	float w1[numVertices]{};//weight1 重み1（行列が影響する割合1）
 	//p,n,wを設定
 	float ofstX = 2.0f / (numX - 1);
 	float ofstW = 1.0f / (numX - 1);
 	for (int i = 0; i < numX; i++) {
+		int k = i * 8;
 		for (int j = 0; j < numY; j++) {
 			//position
-			p[i*8+j].x = leftP[j].x + ofstX * i;
-			p[i*8+j].y = leftP[j].y;
-			p[i*8+j].z = leftP[j].z;
+			p[k + j].x = leftP[j].x + ofstX * i;//ｘ座標を右にずらしていく
+			p[k + j].y = leftP[j].y;
+			p[k + j].z = leftP[j].z;
 			//normal
-			n[i*8+j]   = leftN[j];
+			n[k + j] = leftN[j];
 			//wieght
-			w[i*8+j][0] = 1.0f - ofstW * i;
-			w[i*8+j][1] = ofstW * i;
+			w0[k + j] = 1.0f - ofstW * i; //1.0 から 0.0
+			w1[k + j] = ofstW * i;		  //0.0 から 1.0
 		}
 	}
 
@@ -72,8 +74,8 @@ void gmain()
 		indices[j++] = k + 9;
 	}
 	
-	//ワールド座標変換行列
-	MAT mat[2];
+	//ワールド座標変換行列２つ
+	MAT mat0, mat1;
 
 	//座標変換後の位置と法線
 	VEC p_[numVertices];
@@ -91,46 +93,57 @@ void gmain()
 	}
 
 	//テクスチャ読み込み
-	int tex = 0;// loadImage("silver.png");
+	int tex = loadImage("silver.png");
 
 	//三角関数用ラジアン
-	float rad=0;
+	float rad = 0;
 
-	//wireframe();
+	//ワイヤーフレーム表示フラッグ
+	bool wireFlag = false;
+
+	specularOn();
 	
 	while (!quit()) {
 		getInputState();
 		if (isTrigger(KEY_ESC)) closeWindow();
-		
-		//ひねる角ラジアン
+	
+		//ワイヤーフレーム⇔ソリッド、表示切替
+		if (isTrigger(KEY_SPACE)) {
+			wireFlag = !wireFlag;
+			if (wireFlag)wireframe();
+			else solid();
+		}
+
+		//ひねるラジアン値
 		float r0 = sinf(rad) * 1.5f;
 		float r1 = cosf(rad) * 1.5f;
-		rad += 0.01f;
+		rad += 0.03f;
 
 		//行列をつくる
-		mat[0].identity();
-		mat[0].mulRotateZ(r0);
-		mat[1].identity();
-		mat[1].mulRotateX(r1);
+		mat0.identity();
+		mat0.mulRotateZ(r0);
+		mat1.identity();
+		mat1.mulRotateX(r1);
 
 		//座標変換
 		for (int i = 0; i < numVertices; i++) {
-			//１頂点ずつ座標変換
-			p_[i]  = w[i][0] * mat[0].mul(p[i]);
-			n_[i]  = w[i][0] * mat[0].mul(n[i]);
-			p_[i] += w[i][1] * mat[1].mul(p[i]);
-			n_[i] += w[i][1] * mat[1].mul(n[i]);
+			//位置。行列計算後の位置にWeight(行列が影響する割合)を掛ける
+			p_[i] = mul(p[i], mat0) * w0[i];
+			p_[i] += mul(p[i], mat1) * w1[i];
+			//法線ベクトル。位置と同様の計算をする
+			n_[i] = mul(n[i], mat0) * w0[i];
+			n_[i] += mul(n[i], mat1) * w1[i];
 			//変換後、描画用頂点にコピー
-			vertices[i].x  = p_[i].x; 
-			vertices[i].y  = p_[i].y; 
-			vertices[i].z  = p_[i].z;
-			vertices[i].nx = n_[i].x; 
-			vertices[i].ny = n_[i].y; 
+			vertices[i].x = p_[i].x;
+			vertices[i].y = p_[i].y;
+			vertices[i].z = p_[i].z;
+			vertices[i].nx = n_[i].x;
+			vertices[i].ny = n_[i].y;
 			vertices[i].nz = n_[i].z;
 		}
 
 		//描画
-		clear(0.1f, 0.1f, 0.1f);
+		clear(0.f, 0.f, 0.f);
 		model(vertices, indices, numTriangles, tex);
 		present();
 	}

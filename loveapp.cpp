@@ -36,7 +36,7 @@ void gmain()
 	};
 
 	//座標変換前の頂点要素の入れ物（定数）
-	//読みやすくするため、あえて構造体にしていない!!
+	//コードを読みやすくするため、あえて構造体にしていない!!
 	VEC   p[numVertices]{};//position 位置
 	VEC   n[numVertices]{};//normal 法線
 	float w0[numVertices]{};//weight0 重み0（行列0が影響する割合）
@@ -87,7 +87,7 @@ void gmain()
 	//三角関数用ラジアン
 	float rad = 0;
 
-	//座標返還後の値を入れる頂点の構造体
+	//座標変換後の値を入れる頂点の構造体
 	struct VERTEX_ {
 		VEC p;
 		VEC n;
@@ -131,15 +131,15 @@ void gmain()
 		}
 
 		//ひねるラジアン値
-		r0 = sinf(rad*2) * 1.5f;
-		r1 = cosf(rad*3) * 2.0f;
+		r0 = cosf(rad*3) * 2.0f;
+		r1 = sinf(rad*2) * 1.5f;
 		rad += 0.005f;
 
 		//行列をつくる
 		mat0.identity();
-		mat0.mulRotateZ(r0);
+		mat0.mulRotateX(r0);
 		mat1.identity();
-		mat1.mulRotateX(r1);
+		mat1.mulRotateZ(r1);
 
 		//座標変換
 		for (int i = 0; i < numVertices; i++) {
@@ -152,7 +152,7 @@ void gmain()
 		}
 
 		//描画
-		clear(0.0f, 0.1f, 0.1f);
+		clear(0.0f, 0.0f, 0.0f);
 		model_(vertices, indices, numTriangles, textureId);
 		present();
 	}
@@ -287,7 +287,7 @@ void gmain()
 
 	//ワイヤーフレーム表示フラッグ
 	bool wireFlag = false;
-	cullnone();
+	//cullnone();
 	//ライティング
 	specularOn();
 	lightDirection(0, -0.5, 0.5f);
@@ -312,34 +312,32 @@ void gmain()
 			++state %= 3;
 			rad = 0;
 		}
+		mat0.identity();
+		mat1.identity();
 		switch (state) {
 		case 0:
-			rad -= 0.01f;
-			mat0.identity();
-			mat0.mulRotateX(rad);
-			mat1.identity();
-			mat1.mulRotateX(rad);
+			r0 = 0.6f - cosf(rad) * 0.6f;
+			r1 = 0.6f - cosf(rad) * 0.6f;
+			rad += 0.02f;
+			mat0.mulRotateX(-r0);
+			mat1.mulRotateX(-r1);
 			textureId = 0;
 			break;
 		case 1:
-			r0 = 0;
-			r1 = sinf(rad)*1.5f;
-			rad += 0.01f;
-			mat0.identity();
-			mat0.mulRotateZ(r0);
-			mat1.identity();
-			mat1.mulRotateX(r1);
+			r0 = 0.6f - cosf(rad) * 0.6f;
+			r1 = 0;
+			rad += 0.02f;
+			mat0.mulRotateX(-r0);
+			mat1.mulRotateX(-r1);
 			textureId = 0;
 			break;
 		case 2:
-			r0 = sinf(rad * 2) * 1.f;
-			r1 = cosf(rad * 3) * 1.0f;
-			rad += 0.005f;
-			mat0.identity();
-			mat0.mulRotateZ(r0);
-			mat1.identity();
-			mat1.mulRotateX(r1);
-			textureId = texSilver;
+			r0 = 0.6f - cosf(rad) * 0.6f;
+			r1 = 0.55f - cosf(rad) * 0.55f;
+			rad += 0.02f;
+			mat0.mulRotateX(-r0);
+			mat1.mulRotateZ(-r1);
+			textureId = 0;
 			break;
 		}
 
